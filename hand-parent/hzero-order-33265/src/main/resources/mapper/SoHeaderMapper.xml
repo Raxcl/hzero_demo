@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hand.order.infra.mapper.SoHeaderMapper">
+    <!-- 可根据自己的需求，是否要使用 系统自带 -->
+    <resultMap id="BaseResultMap" type="org.hand.order.domain.entity.SoHeader">
+        <result column="so_header_id" property="soHeaderId" jdbcType="DECIMAL"/>
+        <result column="order_number" property="orderNumber" jdbcType="VARCHAR"/>
+        <result column="company_id" property="companyId" jdbcType="DECIMAL"/>
+        <result column="order_date" property="orderDate" jdbcType="DATE"/>
+        <result column="order_status" property="orderStatus" jdbcType="VARCHAR"/>
+        <result column="customer_id" property="customerId" jdbcType="DECIMAL"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <!-- 可根据自己的需求，是否要使用 多条件查询-->
+    <resultMap id="OrderMap" type="org.hand.order.domain.entity.dto.SoHeaderDTO">
+        <result column="so_header_id" property="soHeaderId" jdbcType="DECIMAL"/>
+        <result column="company_id" property="companyId" jdbcType="DECIMAL"/>
+        <result column="customer_id" property="customerId" jdbcType="DECIMAL"/>
+        <result column="order_number" property="orderNumber" jdbcType="VARCHAR"/>
+        <result column="order_status" property="orderStatus" jdbcType="VARCHAR"/>
+        <result column="company_name" property="companyName" jdbcType="VARCHAR"/>
+        <result column="customer_name" property="customerName" jdbcType="VARCHAR"/>
+        <result column="order_date" property="orderDate" jdbcType="DATE"/>
+        <result column="order_price" property="orderPrice" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <!--多条件查询-->
+    <select id="queryByOrderTotal" resultMap="OrderMap" >
+        select hodr_so_header.so_header_id,order_number,company_name,customer_name,
+        order_date,order_status,order_price,hodr_company.company_id,
+               hodr_customer.customer_id,hodr_company.company_name,hodr_customer.customer_name
+        from hodr_so_header
+        left join hodr_company on hodr_so_header.company_id = hodr_company.company_id
+        left join hodr_customer on hodr_so_header.customer_id = hodr_customer.customer_id
+        left join (select hodr_so_line.so_header_id,sum(hodr_so_line.unit_selling_price * hodr_so_line.order_quantity) order_price
+        from hodr_so_line
+        group by hodr_so_line.so_header_id) hod_sum
+        on hodr_so_header.so_header_id = hod_sum.so_header_id
+        <trim prefix="where" prefixOverrides="and">
+            <if test="companyId != null and companyId != ''">
+                hodr_company.company_id = #{companyId}
+            </if>
+            <if test="customerId != null and customerId != ''">
+                and hodr_customer.customer_id = #{customerId}
+            </if>
+            <if test="orderNumber != null and orderNumber != ''">
+                and order_number like concat('%',#{orderNumber},'%')
+            </if>
+            <if test="orderStatus != null and orderStatus != ''">
+                and order_status = #{orderStatus}
+            </if>
+        </trim>
+    </select>
+
+    <!--根据订单头查询-->
+    <select id="queryBySoHeaderId" resultType="org.hand.order.domain.entity.dto.SoHeaderDTO">
+        select hodr_so_header.so_header_id,order_number,company_name,customer_name,
+        order_date,order_status,order_price,hodr_company.company_id,hodr_customer.customer_id
+        from hodr_so_header
+        left join hodr_company on hodr_so_header.company_id = hodr_company.company_id
+        left join hodr_customer on hodr_so_header.customer_id = hodr_customer.customer_id
+        left join (select hodr_so_line.so_header_id,sum(hodr_so_line.unit_selling_price * hodr_so_line.order_quantity) order_price
+        from hodr_so_line
+        group by hodr_so_line.so_header_id) hod_sum
+        on hodr_so_header.so_header_id = hod_sum.so_header_id
+        where hodr_so_header.so_header_id = #{soHeaderId}
+    </select>
+
+
+    <!--根据订单头查询-->
+    <!--<select id="queryBySoHeaderId" resultMap="BaseResultMap" parameterType="Long">
+        select so_header_id,company_id,customer_id
+        from hodr_so_header
+        where so_header_id = #{soHeaderId}
+    </select>-->
+
+    <update id="updateByTime">
+        update hodr_so_header set order_status="CLOSED"
+        where order_status="APPROVED"
+    </update>
+
+</mapper>

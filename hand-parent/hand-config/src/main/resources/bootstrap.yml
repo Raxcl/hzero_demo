@@ -1,0 +1,21 @@
+server:
+  port: 8010
+management:
+  server:
+    port: 8011
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+eureka:
+  instance:
+    preferIpAddress: ${EUREKA_INSTANCE_PREFER_IP_ADDRESS:true}
+    leaseRenewalIntervalInSeconds: ${EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS:30}
+    leaseExpirationDurationInSeconds: ${EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION_IN_SECONDS:45}
+    metadata-map:
+      VERSION: 1.5.0.RELEASE
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://dev.hzero.org:8000/eureka}
+    registryFetchIntervalSeconds: 10
+    disable-delta: true

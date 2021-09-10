@@ -1,0 +1,78 @@
+spring:
+  application:
+    name: hzero-generator
+  datasource:
+    dynamic:
+      primary: gen
+      datasource:
+        gen:
+          driver-class-name: ${SPRING_DATASOURCE_DRIVER:com.mysql.jdbc.Driver}
+          url: ${SPRING_DATASOURCE_URL:jdbc:mysql://db.hzero.org:3306?useUnicode=true&characterEncoding=UTF-8&useSSL=false}
+          username: ${SPRING_DATASOURCE_USERNAME:hzero}
+          password: ${SPRING_DATASOURCE_PASSWORD:hzero}
+        dev:
+          driver-class-name: ${SPRING_DATASOURCE_DRIVER:com.mysql.jdbc.Driver}
+          url: ${SPRING_DATASOURCE_URL_DEV:jdbc:mysql://127.0.0.1:3306?useUnicode=true&characterEncoding=UTF-8&useSSL=false}
+          username: ${SPRING_DATASOURCE_USERNAME_DEV:hzero}
+          password: ${SPRING_DATASOURCE_PASSWORD_DEV:hzero}
+        tst:
+          driver-class-name: ${SPRING_DATASOURCE_DRIVER:com.mysql.jdbc.Driver}
+          url: ${SPRING_DATASOURCE_URL_TST:jdbc:mysql://127.0.0.1:3306?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT}
+          username: ${SPRING_DATASOURCE_USERNAME_TST:hzero}
+          password: ${SPRING_DATASOURCE_PASSWORD_TST:hzero}
+        uat:
+          driver-class-name: ${SPRING_DATASOURCE_DRIVER:com.mysql.jdbc.Driver}
+          url: ${SPRING_DATASOURCE_URL_TST:jdbc:mysql://127.0.0.1:3306?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT}
+          username: ${SPRING_DATASOURCE_USERNAME_UAT:hzero}
+          password: ${SPRING_DATASOURCE_PASSWORD_UAT:hzero}
+        prd:
+          driver-class-name: ${SPRING_DATASOURCE_DRIVER:com.mysql.jdbc.Driver}
+          url: ${SPRING_DATASOURCE_URL_PRD:jdbc:mysql://127.0.0.1:3306?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT}
+          username: ${SPRING_DATASOURCE_USERNAME_PRD:hzero}
+          password: ${SPRING_DATASOURCE_PASSWORD_PRD:hzero}
+  mvc:
+    throw-exception-if-no-handler-found: true
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+  resources:
+    cache:
+      period: 604800
+    chain.gzipped: true
+    chain.cache: true
+    static-locations: classpath:/static/,classpath:/view/
+  liquibase:
+    enabled: false
+  servlet:
+    multipart:
+      max-file-size: 10MB
+server:
+  undertow:
+    io-threads: ${SERVER_UNDERTOW_IO_THREADS:4}
+    worker-threads: ${SERVER_UNDERTOW_WORKER_THREADS:128}
+    buffer-size: ${SERVER_UNDERTOW_BUFFER_SIZE:1024}
+    direct-buffers: true
+    max-http-post-size: 10485760
+    allow-unescaped-characters-in-url: true
+mybatis:
+  mapperLocations: classpath*:mapper/**/*.xml
+  configuration:
+    mapUnderscoreToCamelCase: true
+pagehelper:
+  helper-dialect: mysql
+hzero:
+  generator:
+    database: ${HZERO_GEN_DATABASE:hzero_generator}
+  ui-scan:
+    permission: ${HZERO_GEN_PLATFORM_DATABASE:hzero_platform}
+    service: ${HZERO_GEN_ADMIN_DATABASE:hzero_admin}
+  language:
+    lang: zh_CN,en_US,ja_JP,kor_KR,th_TH
+    special:
+      table: hpfm_prompt,fd_language
+  resource:
+    pattern: ${HZERO_RESOURCE_PATTERN:/sys/*}
+logging:
+  level:
+    root: info
+  file: app.log
